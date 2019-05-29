@@ -97,6 +97,15 @@ def run_jar_file(content, path):
         print("run_jar_file - not exists file: " + path)    
 
 
+def remove_api_txt_file(content):
+    api_txt_file = os.path.join(os.getcwd(), "scan_api_[%s].txt" % (content))
+    if os.path.exists(api_txt_file) and os.path.isfile(api_txt_file):
+        os.remove(api_txt_file)
+        # time = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+        # backup_file = os.path.join(os.getcwd(), "scan_api_[%s]_%s.txt" % (content, time))
+        # os.rename(api_txt_file, backup_file)
+
+
 def execute_scan_dir(content, path):
     if os.path.exists(path):
         file_list = os.listdir(path)
@@ -104,7 +113,6 @@ def execute_scan_dir(content, path):
             file_abs_path = os.path.join(path, file)
             ext = ('.jar', '.aar', '.dex', '.apk')
             if os.path.isfile(file_abs_path) and file_abs_path.endswith(ext): 
-                print("haha" + file_abs_path)
                 execute_scan_file(content, file_abs_path)
     else:
         print("execute_scan_dir - not exists dir: " + path)  
@@ -119,14 +127,6 @@ def execute_scan_file(content, path):
         run_dex_file(content, path)
     else:
         print("execute_scan_file - not support file: " + path)
-
-def remove_api_txt_file(content):
-    api_txt_file = os.path.join(os.getcwd(), "scan_api_[%s].txt" % (content))
-    if os.path.exists(api_txt_file) and os.path.isfile(api_txt_file):
-        os.remove(api_txt_file)
-        # time = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-        # backup_file = os.path.join(os.getcwd(), "scan_api_[%s]_%s.txt" % (content, time))
-        # os.rename(api_txt_file, backup_file)
 
 
 def execute_scan_api(content, path):
