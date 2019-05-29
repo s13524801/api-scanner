@@ -12,7 +12,6 @@ import datetime
 
 error_color = "\033[31m"
 normal_color = "\033[0m"
-log_verbose = True
 
 
 def execute_shell(command_list, cwd, is_shell, verbose):
@@ -57,11 +56,10 @@ def run_scan_file(content, path):
         print(error_color)
         sys.stderr.write(output)
         print(normal_color)
-        time = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-        with open(os.path.join(os.getcwd(), "scan_api_%s.txt" % (time)), 'w') as f:
-            f.write( "Scan Path: %s \n\n" % (path))
-            f.write( "Scan Content: %s \n\n" % (content))
+        with open(os.path.join(os.getcwd(), "scan_api_[%s].txt" % (content)), 'a') as f:
+            f.write( "Scan Path: %s \n" % (path))
             f.write( "Scan Result: \n" + output)
+            f.write( "----------------------------------------------------------------\n\n")
     else:
         print("run_scan_file - not exists file: " + path)    
 
@@ -122,10 +120,19 @@ def execute_scan_file(content, path):
     else:
         print("execute_scan_file - not support file: " + path)
 
+def remove_api_txt_file(content):
+    api_txt_file = os.path.join(os.getcwd(), "scan_api_[%s].txt" % (content))
+    if os.path.exists(api_txt_file) and os.path.isfile(api_txt_file):
+        os.remove(api_txt_file)
+        # time = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+        # backup_file = os.path.join(os.getcwd(), "scan_api_[%s]_%s.txt" % (content, time))
+        # os.rename(api_txt_file, backup_file)
+
 
 def execute_scan_api(content, path):
     print("execute_scan_api - content: %s, path: %s" % (content, path))
     if os.path.exists(path):
+        remove_api_txt_file(content)
         if os.path.isdir(path):
             execute_scan_dir(content, path)
         else:
@@ -136,6 +143,6 @@ def execute_scan_api(content, path):
 
 if __name__ == "__main__":
     if (len(sys.argv) < 3):
-        print('usage: ./main.py content(android.support.v4) path(jar, aar, dex, apk)')
+        print('usage: ./main.py content("android.support.v4") path(jar, aar, dex, apk)')
         exit(1)
     execute_scan_api(sys.argv[1], sys.argv[2])
