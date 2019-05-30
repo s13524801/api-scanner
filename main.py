@@ -12,6 +12,8 @@ import datetime
 
 error_color = "\033[31m"
 normal_color = "\033[0m"
+file_ext = ('.jar', '.aar', '.dex', '.apk')
+dir_excl = ("com.android.tools", "org.jetbrains", "android.test", "androidx.test")
 
 
 def execute_shell(command_list, cwd, is_shell, verbose):
@@ -106,14 +108,35 @@ def remove_api_txt_file(content):
         # os.rename(api_txt_file, backup_file)
 
 
+def remove_unzip_dir(path):
+    if os.path.isdir(path):
+        file_list = os.listdir(path)
+        for file in file_list:
+            file_abs_path = os.path.join(path, file)
+            if os.path.isdir(file_abs_path):
+                if file_abs_path.endswith("_unzip"):
+                    shutil.rmtree(file_abs_path)
+                    print("remove_unzip_dir - dir: " + file_abs_path)  
+                else:
+                    remove_unzip_dir(file_abs_path)
+    else:
+        unzip_file = os.path.join(path, "_unzip")
+        if os.path.exists(unzip_file) and os.path.isdir(unzip_file):
+            shutil.rmtree(unzip_file)
+            print("remove_unzip_dir - dir: " + unzip_file)  
+
+
 def execute_scan_dir(content, path):
     if os.path.exists(path):
         file_list = os.listdir(path)
         for file in file_list:
             file_abs_path = os.path.join(path, file)
-            ext = ('.jar', '.aar', '.dex', '.apk')
-            if os.path.isfile(file_abs_path) and file_abs_path.endswith(ext): 
-                execute_scan_file(content, file_abs_path)
+            if os.path.isfile(file_abs_path):
+                if file_abs_path.endswith(file_ext):
+                    execute_scan_file(content, file_abs_path)    
+            else:
+                if not file.startswith(dir_excl):
+                    execute_scan_dir(content, file_abs_path)
     else:
         print("execute_scan_dir - not exists dir: " + path)  
 
@@ -137,12 +160,13 @@ def execute_scan_api(content, path):
             execute_scan_dir(content, path)
         else:
             execute_scan_file(content, path)
+        # remove_unzip_dir(path)
     else:
-        print("execute_scan_dir - not exists path: " + path)  
+        print("execute_scan_api - not exists path: " + path)  
 
 
 if __name__ == "__main__":
     if (len(sys.argv) < 3):
-        print('usage: ./main.py content("android.support.v4") path(jar, aar, dex, apk)')
+        print('usage: ./main.py content("android.support.v7") path(jar, aar, dex, apk)')
         exit(1)
     execute_scan_api(sys.argv[1], sys.argv[2])
