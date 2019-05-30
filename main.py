@@ -45,7 +45,8 @@ def run_unzip_file(file_path):
         shutil.rmtree(extract_dir)
     if zipfile.is_zipfile(file_path):
         filezip = zipfile.ZipFile(file_path, 'r')
-        filezip.extractall(extract_dir)    
+        filezip.extractall(extract_dir) 
+        filezip.close()   
     else:
         print("run_unzip_file - not zip file: " + file_path)
     return extract_dir
